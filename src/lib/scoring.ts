@@ -1,54 +1,64 @@
 import type { FlybyResult } from "./flybyModel";
+import type { MissionPreset } from "./missionPresets";
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
 export type ScoreBreakdown = {
-  observation: number;
+  scientificValue: number;
   safety: number;
-  deltaVEfficiency: number;
-  aimingBalance: number;
+  rawTotal: number;
+  unsafeCapApplied: boolean;
   total: number;
 };
 
-export function observationScore(dCAKm: number): number {
-  if (dCAKm < 0.5) return 35;
-  if (dCAKm < 1) return 38;
-  if (dCAKm < 2) return 40;
-  if (dCAKm <= 10) return 40 - (dCAKm - 2) * 1.5;
-  if (dCAKm <= 30) return Math.max(5, 28 - (dCAKm - 10));
-  return 5;
+function meanPotential(
+  distribution: FlybyResult["distribution"],
+  potential: (distanceKm: number) => number,
+): number {
+  return distribution.reduce(
+    (sum, point) => sum + potential(Math.hypot(point.yKm, point.zKm)),
+    0,
+  ) / distribution.length;
 }
 
-export function safetyScore(dCAKm: number): number {
-  if (dCAKm < 0.5) return 0;
-  if (dCAKm < 1) return 10;
-  if (dCAKm < 2) return 25;
-  return 40;
+export function scientificValuePotential(distanceKm: number): number {
+  const distanceFromBest = distanceKm - 1;
+  return Math.exp(-(distanceFromBest ** 2) / (2 * 2.5 ** 2));
 }
 
-export function deltaVEfficiencyScore(deltaVTotalMps: number): number {
-  return clamp(10 * (1 - deltaVTotalMps / 0.25), 0, 10);
+export function safetyPotential(distanceKm: number, preset: MissionPreset): number {
+  const normalizedDistance = clamp(
+    (distanceKm - preset.dangerRadiusKm)
+      / (preset.safeObservationMinRadiusKm - preset.dangerRadiusKm),
+    0,
+    1,
+  );
+  return normalizedDistance ** 2 * (3 - 2 * normalizedDistance);
 }
 
-export function aimingBalanceScore(bYKm: number, bZKm: number): number {
-  const absY = Math.abs(bYKm);
-  const absZ = Math.abs(bZKm);
-  const ratio = Math.min(absY, absZ) / Math.max(absY, absZ, 1e-6);
-  return 5 + 5 * ratio;
-}
-
-export function calculateScores(flyby: FlybyResult): ScoreBreakdown {
-  const observation = clamp(observationScore(flyby.dCAKm), 0, 40);
-  const safety = clamp(safetyScore(flyby.dCAKm), 0, 40);
-  const deltaVEfficiency = deltaVEfficiencyScore(flyby.deltaVTotalMps);
-  const aimingBalance = aimingBalanceScore(flyby.bYAfterKm, flyby.bZAfterKm);
-
+export function calculateDistributionScores(
+  distribution: FlybyResult["distribution"],
+  preset: MissionPreset,
+): Pick<ScoreBreakdown, "scientificValue" | "safety"> {
   return {
-    observation,
+    scientificValue: 50 * meanPotential(distribution, scientificValuePotential),
+    safety: 50 * meanPotential(distribution, (distance) => safetyPotential(distance, preset)),
+  };
+}
+
+export function calculateScores(
+  flyby: FlybyResult,
+  preset: MissionPreset,
+): ScoreBreakdown {
+  const { scientificValue, safety } = calculateDistributionScores(flyby.distribution, preset);
+  const rawTotal = scientificValue + safety;
+  const unsafeCapApplied = flyby.threeSigmaSafetyMarginKm < 0 && rawTotal > 59;
+  return {
+    scientificValue,
     safety,
-    deltaVEfficiency,
-    aimingBalance,
-    total: observation + safety + deltaVEfficiency + aimingBalance,
+    rawTotal,
+    unsafeCapApplied,
+    total: unsafeCapApplied ? 59 : rawTotal,
   };
 }
