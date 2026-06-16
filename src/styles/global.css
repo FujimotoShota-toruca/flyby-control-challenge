@@ -260,7 +260,7 @@ details { color: var(--muted); }
   .workspace { display: flex; flex-direction: column; }
   .bplane-panel { width: 100%; padding: 14px; }
   .right-column { display: contents; }
-  .workspace { padding-bottom: 230px; }
+  .workspace { padding-bottom: 258px; }
   .controls-panel { width: 100%; padding: 14px; display: flex; flex-direction: column; }
   .controls-panel .section-heading { order: 1; }
   .controls-panel > .help-text { order: 6; margin-bottom: 0; }
@@ -290,7 +290,7 @@ details { color: var(--muted); }
     bottom: calc(8px + env(safe-area-inset-bottom));
     z-index: 20;
     display: block;
-    padding: 11px;
+    padding: 10px 11px;
     border: 1px solid rgba(99,230,255,.32);
     border-radius: 16px;
     background: rgba(6, 19, 30, .96);
@@ -303,12 +303,12 @@ details { color: var(--muted); }
   .mobile-budget-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), var(--cyan)); transition: width .18s ease; }
   .budget-low .mobile-budget-track span { background: linear-gradient(90deg, var(--amber), var(--red)); }
   .budget-low .mobile-command-summary strong { color: var(--amber); }
-  .mobile-sliders { display: grid; gap: 7px; }
-  .mobile-slider { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: center; gap: 8px; }
-  .mobile-slider > span { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; color: #dceeff; }
+  .mobile-sliders { display: grid; gap: 8px; }
+  .mobile-slider { display: grid; gap: 3px; min-width: 0; }
+  .mobile-slider > span { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-width: 0; color: #dceeff; }
   .mobile-slider strong { font-size: .9rem; }
-  .mobile-slider output { color: var(--cyan); font-size: .9rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .mobile-slider input[type="range"] { margin: 0; min-height: 25px; }
+  .mobile-slider output { flex: none; color: var(--cyan); font-size: .9rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .mobile-slider input[type="range"] { width: 100%; margin: 0; min-height: 26px; }
   .mobile-command-actions { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7px; margin-top: 8px; }
   .mobile-command-actions.three-actions { grid-template-columns: .75fr .9fr 1.15fr; }
   .mobile-command-actions .button { min-height: 42px; border-radius: 10px; font-size: .86rem; }
