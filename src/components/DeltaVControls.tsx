@@ -53,6 +53,23 @@ export function DeltaVControls({
       </span>
     </label>
   );
+  const mobileSlider = (axis: "yMps" | "zMps", label: string) => (
+    <label className="mobile-slider" htmlFor={`mobile-op${stage}-${axis}`}>
+      <span>
+        <strong>{label}</strong>
+        <output>{formatSigned(command[axis], stage === 1 ? 2 : 3)}</output>
+      </span>
+      <input
+        id={`mobile-op${stage}-${axis}`}
+        type="range"
+        min={sliderMin}
+        max={sliderMax}
+        step={sliderStep}
+        value={command[axis]}
+        onChange={(event) => onChange({ ...command, [axis]: Number(event.target.value) })}
+      />
+    </label>
+  );
 
   return (
     <section className="panel controls-panel" aria-labelledby="controls-title">
@@ -160,6 +177,26 @@ export function DeltaVControls({
         <button className="button primary" type="button" onClick={onConfirm}>
           {stage === 1 ? "第1回ΔVを実行" : "最終ΔVを実行"}
         </button>
+      </div>
+      <div className={`mobile-command-bar ${flyby.deltaVRemainingMps < 0.03 ? "budget-low" : ""}`} aria-label="スマートフォン用の固定操作バー">
+        <div className="mobile-command-summary">
+          <span>OP {stage} / {timing}</span>
+          <strong>残り {flyby.deltaVRemainingMps.toFixed(3)} m/s</strong>
+        </div>
+        <div className="mobile-budget-track" aria-label="ΔV使用量">
+          <span style={{ width: `${Math.min(100, usedRatio * 100)}%` }} />
+        </div>
+        <div className="mobile-sliders">
+          {mobileSlider("yMps", "ΔV_y")}
+          {mobileSlider("zMps", "ΔV_z")}
+        </div>
+        <div className={`mobile-command-actions ${onBack ? "three-actions" : ""}`}>
+          {onBack && <button className="button secondary" type="button" onClick={onBack}>戻る</button>}
+          <button className="button secondary" type="button" onClick={onReset}>リセット</button>
+          <button className="button primary" type="button" onClick={onConfirm}>
+            {stage === 1 ? "1回目実行" : "最終実行"}
+          </button>
+        </div>
       </div>
     </section>
   );
