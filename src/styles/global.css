@@ -259,7 +259,28 @@ details { color: var(--muted); }
   .workspace { display: flex; flex-direction: column; }
   .bplane-panel { width: 100%; padding: 14px; }
   .right-column { display: contents; }
-  .controls-panel { width: 100%; padding: 14px; }
+  .controls-panel { width: 100%; padding: 14px; display: flex; flex-direction: column; }
+  .controls-panel .section-heading { order: 1; }
+  .controls-panel > .help-text { order: 6; margin-bottom: 0; }
+  .budget-panel { order: 2; margin-top: 10px; }
+  .burn-control { order: 3; margin-top: 10px; padding-top: 10px; }
+  .operation-use { order: 4; margin-top: 10px; }
+  .controls-panel > .button-row { order: 5; margin-top: 12px; }
+  .observation-update { order: 7; }
+  .burn-effect-panel { order: 8; }
+  .bplane-panel .help-text { font-size: .9rem; line-height: 1.55; margin: 8px 0 10px; }
+  .zoom-controls { margin-bottom: 8px; }
+  .zoom-controls button { flex: 1; padding: 8px 6px; }
+  .map-readout span { font-size: .78rem; }
+  .legend { font-size: .78rem; gap: 7px 11px; }
+  .zone-legend { padding: 9px; }
+  .zone-legend > strong { font-size: .82rem; }
+  .zone-legend > div { gap: 6px 10px; font-size: .76rem; }
+  .slider-control { padding: 14px 12px; }
+  .slider-label strong { font-size: 1.28rem; }
+  .slider-label output { font-size: 1.22rem; }
+  input[type="range"] { margin: 18px 0 6px; min-height: 28px; }
+  .budget-heading strong { font-size: 1.05rem; }
   .button-row.three-buttons { grid-template-columns: 1fr; }
   .result-workspace { display: grid; grid-template-columns: 1fr; }
   .flyby-replay { padding: 14px; }
