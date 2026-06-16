@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { AboutPanel } from "./components/AboutPanel";
 import { BPlanePanel } from "./components/BPlanePanel";
 import { DeltaVControls } from "./components/DeltaVControls";
+import { FlybyReplay } from "./components/FlybyReplay";
 import { OperationProgress } from "./components/OperationProgress";
 import { ResultCard } from "./components/ResultCard";
 import {
@@ -12,8 +13,9 @@ import {
 import { standardMissionPreset } from "./lib/missionPresets";
 import { getMissionFeedback } from "./lib/missionFeedback";
 import { calculateScores } from "./lib/scoring";
+import { selectReplayTrajectoryIndex } from "./lib/flybyReplay";
 
-type OperationStage = 1 | 2 | 3;
+type OperationStage = 1 | 2 | 3 | 4;
 const ZERO_COMMAND: DeltaVCommand = { yMps: 0, zMps: 0 };
 const createObservationSeed = () => Math.floor(Math.random() * 1_000_000_000);
 
@@ -22,6 +24,7 @@ function App() {
   const [burn1, setBurn1] = useState<DeltaVCommand>(ZERO_COMMAND);
   const [burn2, setBurn2] = useState<DeltaVCommand>(ZERO_COMMAND);
   const [observationSeed, setObservationSeed] = useState(createObservationSeed);
+  const [replayTrajectoryIndex, setReplayTrajectoryIndex] = useState(0);
   const preset = standardMissionPreset;
 
   const flyby = useMemo(
@@ -59,9 +62,14 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // A flyby replay stage can be inserted here later before moving to stage 3.
   const completeOperations = () => {
+    setReplayTrajectoryIndex(selectReplayTrajectoryIndex(createObservationSeed(), flyby.distribution.length));
     setStage(3);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const completeReplay = () => {
+    setStage(4);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -123,6 +131,14 @@ function App() {
               )}
             </div>
           </div>
+        ) : stage === 3 ? (
+          <FlybyReplay
+            flyby={flyby}
+            preset={preset}
+            trajectoryPoint={flyby.distribution[replayTrajectoryIndex] ?? flyby.finalCenter}
+            onBack={() => setStage(2)}
+            onComplete={completeReplay}
+          />
         ) : (
           <ResultCard
             burn1={burn1}
@@ -130,7 +146,7 @@ function App() {
             flyby={flyby}
             scores={scores}
             feedback={feedback}
-            onBack={() => setStage(2)}
+            onBack={() => setStage(3)}
             onRestart={restart}
           />
         )}

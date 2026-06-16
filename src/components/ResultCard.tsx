@@ -121,7 +121,7 @@ export function ResultCard({ burn1, burn2, flyby, scores, feedback, onBack, onRe
           </div>
         </details>
         <div className="button-row">
-          <button className="button secondary" type="button" onClick={onBack}>2回目をやり直す</button>
+          <button className="button secondary" type="button" onClick={onBack}>再生画面に戻る</button>
           <button className="button primary" type="button" onClick={onRestart}>最初から挑戦する</button>
         </div>
         <p className="disclaimer compact">非公式教育シミュレーション｜誤差分布・確率は教育用の簡略モデルです</p>

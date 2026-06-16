@@ -140,6 +140,11 @@ describe("probability scoring", () => {
     expect(scientificValuePotential(3)).toBeGreaterThan(scientificValuePotential(10));
   });
 
+  it("gives no scientific value to a collision course", () => {
+    expect(scientificValuePotential(0.4, standardMissionPreset.asteroidMaxRadiusKm)).toBe(0);
+    expect(scientificValuePotential(1, standardMissionPreset.asteroidMaxRadiusKm)).toBeGreaterThan(0);
+  });
+
   it("moves scientific value and safety in opposite directions", () => {
     expect(scientificValuePotential(1)).toBeGreaterThan(scientificValuePotential(3));
     expect(safetyPotential(1, standardMissionPreset)).toBeLessThan(

@@ -22,7 +22,8 @@ function meanPotential(
   ) / distribution.length;
 }
 
-export function scientificValuePotential(distanceKm: number): number {
+export function scientificValuePotential(distanceKm: number, collisionRadiusKm = 0.42): number {
+  if (distanceKm < collisionRadiusKm) return 0;
   const distanceFromBest = distanceKm - 1;
   return Math.exp(-(distanceFromBest ** 2) / (2 * 2.5 ** 2));
 }
@@ -42,7 +43,10 @@ export function calculateDistributionScores(
   preset: MissionPreset,
 ): Pick<ScoreBreakdown, "scientificValue" | "safety"> {
   return {
-    scientificValue: 50 * meanPotential(distribution, scientificValuePotential),
+    scientificValue: 50 * meanPotential(
+      distribution,
+      (distance) => scientificValuePotential(distance, preset.asteroidMaxRadiusKm),
+    ),
     safety: 50 * meanPotential(distribution, (distance) => safetyPotential(distance, preset)),
   };
 }
