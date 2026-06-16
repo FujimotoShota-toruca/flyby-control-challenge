@@ -3,6 +3,11 @@ export function AboutPanel() {
     <details className="about-panel panel">
       <summary>このシミュレーションについて</summary>
       <div className="about-content">
+        <p className="project-links">
+          <a href="https://fujimotoshota-toruca.github.io/flyby-control-challenge/" target="_blank" rel="noreferrer">公開アプリ</a>
+          <a href="https://github.com/FujimotoShota-toruca/flyby-control-challenge" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://github.com/FujimotoShota-toruca/flyby-control-challenge/blob/main/README.md" target="_blank" rel="noreferrer">README</a>
+        </p>
         <p>
           <strong>ΔV</strong>は、探査機の速度を少し変えることです。
           <strong>Bプレーン</strong>は、小惑星の近くをどのあたりで通るかを見る地図です。

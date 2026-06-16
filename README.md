@@ -1,5 +1,8 @@
 # Flyby Control Challenge
 
+- 公開アプリ: https://fujimotoshota-toruca.github.io/flyby-control-challenge/
+- GitHub: https://github.com/FujimotoShota-toruca/flyby-control-challenge
+
 宇宙少年団の例会「はやぶさ2『トリフネフライバイ』について学ぼう」で使用する、教育用Webアプリの企画・仕様リポジトリです。
 
 本アプリは、はやぶさ2・小惑星トリフネフライバイを題材に、団員が「運用チーム」になったつもりで、`ΔV` と `Bプレーン` を使ってフライバイ通過位置を調整する体験を行うための非公式教育シミュレーションです。

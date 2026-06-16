@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BPlanePoint, FlybyResult } from "../lib/flybyModel";
-import { calculateReplayState, imagingDistanceKm } from "../lib/flybyReplay";
+import {
+  calculateReplayState,
+  imagingDistanceKm,
+  REPLAY_CLOSEST_APPROACH_PROGRESS,
+} from "../lib/flybyReplay";
 import type { MissionPreset } from "../lib/missionPresets";
 
 type Props = {
@@ -13,6 +17,13 @@ type Props = {
 
 const REPLAY_DURATION_MS = 8_000;
 const SHUTTER_TIMES_SEC = [-12, -8, -4, -1, 3];
+const CAMERA_FOV_RAD = 0.105;
+
+function apparentAsteroidSizePx(distanceKm: number, preset: MissionPreset): number {
+  const angularDiameter = (preset.asteroidMaxRadiusKm * 2) / Math.max(distanceKm, 0.001);
+  const frameHeightPx = 96;
+  return Math.min(72, Math.max(5, (angularDiameter / CAMERA_FOV_RAD) * frameHeightPx));
+}
 
 export function FlybyReplay({ flyby, preset, trajectoryPoint, onBack, onComplete }: Props) {
   const [progress, setProgress] = useState(0);
@@ -49,10 +60,11 @@ export function FlybyReplay({ flyby, preset, trajectoryPoint, onBack, onComplete
     trajectoryClosestApproachKm,
     preset.vInfKmPerSec,
   );
-  const spacecraftX = 80 + progress * 740;
-  const asteroidX = 80 + (300 / 360) * 740;
+  const asteroidX = 80 + REPLAY_CLOSEST_APPROACH_PROGRESS * 740;
+  const visualXForTime = (tSec: number) => asteroidX + Math.tanh(tSec / 24) * 340;
+  const spacecraftX = visualXForTime(replay.tSec);
   const passDirection = trajectoryPoint.zKm >= 0 ? -1 : 1;
-  const passOffset = Math.min(118, 38 + trajectoryClosestApproachKm * 12) * passDirection;
+  const passOffset = Math.min(110, 18 + trajectoryClosestApproachKm * 10) * passDirection;
   const spacecraftY = 215 + passOffset;
   const trailStart = Math.max(80, spacecraftX - 180);
   const capturedImages = useMemo(
@@ -116,15 +128,14 @@ export function FlybyReplay({ flyby, preset, trajectoryPoint, onBack, onComplete
               opacity={.3 + (index % 4) * .12}
             />
           ))}
-          <circle cx={asteroidX} cy="215" r="102" fill="none" stroke="#ff7185" strokeWidth="2" strokeDasharray="8 9" opacity=".35" />
-          <ellipse cx={asteroidX} cy="215" rx="45" ry="64" transform={`rotate(-24 ${asteroidX} 215)`} fill="url(#replay-rock)" stroke="#f4fbff" strokeWidth="2" />
-          <path d={`M${asteroidX - 25} 184L${asteroidX + 8} 166L${asteroidX + 32} 202L${asteroidX + 15} 251L${asteroidX - 29} 238Z`} fill="none" stroke="#607782" strokeWidth="3" opacity=".7" />
+          <circle cx={asteroidX} cy="215" r="42" fill="none" stroke="#ff7185" strokeWidth="2" strokeDasharray="8 9" opacity=".35" />
+          <ellipse cx={asteroidX} cy="215" rx="18" ry="26" transform={`rotate(-24 ${asteroidX} 215)`} fill="url(#replay-rock)" stroke="#f4fbff" strokeWidth="2" />
+          <path d={`M${asteroidX - 10} 202L${asteroidX + 3} 195L${asteroidX + 13} 209L${asteroidX + 6} 230L${asteroidX - 12} 224Z`} fill="none" stroke="#607782" strokeWidth="2" opacity=".7" />
           <circle cx={asteroidX} cy="215" r="4" fill="#ff7185" />
           <text x={asteroidX} y="310" textAnchor="middle" fill="#d8e7ef" fontSize="18" fontWeight="700">トリフネ</text>
           <path d={`M80 ${spacecraftY}H820`} stroke="#63e6ff" strokeWidth="2" strokeDasharray="7 8" opacity=".35" />
           {capturedImages.filter((image) => image.visible).map((image) => {
-            const shotProgress = (image.tSec + 300) / 360;
-            const shotX = 80 + shotProgress * 740;
+            const shotX = visualXForTime(image.tSec);
             const captured = replay.tSec >= image.tSec;
             return (
               <g key={image.tSec} opacity={captured ? .9 : .18}>
@@ -164,7 +175,7 @@ export function FlybyReplay({ flyby, preset, trajectoryPoint, onBack, onComplete
         <div className="imaging-frames">
           {capturedImages.map((image) => {
             const captured = replay.tSec >= image.tSec;
-            const apparentSize = Math.min(64, Math.max(8, 75 / Math.sqrt(image.distanceKm)));
+            const apparentSize = apparentAsteroidSizePx(image.distanceKm, preset);
             return (
               <div
                 className={`imaging-frame ${captured ? "captured" : ""} ${image.visible ? "" : "out-of-view"}`}

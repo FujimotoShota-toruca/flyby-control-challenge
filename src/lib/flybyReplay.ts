@@ -6,13 +6,18 @@ export type ReplayState = {
   observation: "遠距離" | "観察可能" | "近距離観察";
 };
 
+export const REPLAY_START_SEC = -60;
+export const REPLAY_END_SEC = 60;
+export const REPLAY_CLOSEST_APPROACH_PROGRESS =
+  (0 - REPLAY_START_SEC) / (REPLAY_END_SEC - REPLAY_START_SEC);
+
 export function calculateReplayState(
   progress: number,
   closestApproachKm: number,
   vInfKmPerSec: number,
 ): ReplayState {
   const boundedProgress = Math.min(1, Math.max(0, progress));
-  const tSec = -300 + boundedProgress * 360;
+  const tSec = REPLAY_START_SEC + boundedProgress * (REPLAY_END_SEC - REPLAY_START_SEC);
   const xKm = vInfKmPerSec * tSec;
   const distanceKm = Math.hypot(xKm, closestApproachKm);
 
